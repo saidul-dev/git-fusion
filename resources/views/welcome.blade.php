@@ -8,6 +8,8 @@
             font-family: Arial;
             background: #f6f8fa;
             padding: 30px;
+            width: 1216px;
+            margin: auto;
         }
 
         input {
@@ -17,6 +19,23 @@
 
         button {
             padding: 10px 20px;
+        }
+
+        .contribution {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .profile {
+            width: 300px;
+            min-height: auto;
+            border-radius: 8px;
+            margin-right: 20px;
+            border: 1px solid #d0d7de;
+        }
+
+        .profile a:hover {
+            text-decoration: underline;
         }
 
         .card {
@@ -97,150 +116,173 @@
 </head>
 <body>
 
-<h2>GitHub Contribution Merger</h2>
+    <h2>GitHub Contribution Merger</h2>
 
-<input type="text" id="usernames" placeholder="username1, username2">
-<button onclick="merge()">Submit</button>
-
-<div class="card">
-
-    <h3 id="totalText">0 contributions in the last year</h3>
-
-    <!-- Month labels -->
-    <div class="months" id="months"></div>
-
-    <div class="contribution-wrapper">
-
-        <!-- Day labels -->
-        <div class="days">
-            <span></span>
-            <span>Mon</span>
-            <span></span>
-            <span>Wed</span>
-            <span></span>
-            <span>Fri</span>
-            <span></span>
-        </div>
-
-        <!-- Heatmap -->
-        <div id="heatmap" class="heatmap"></div>
-
+    <div class="search">
+        <input type="text" id="usernames" placeholder="username1, username2">
+        <button onclick="merge()">Submit</button>
     </div>
 
-    <!-- Legend -->
-    <div class="legend">
-        <span>Learn how we count contributions</span>
+    <div class="contribution">
+        <div class="profile" id="profile">
+            <div id="profiles"></div>
+        </div>
+        <div class="card">
+            <h3 id="totalText">0 contributions in the last year</h3>
+            <!-- Month labels -->
+            <div class="months" id="months"></div>
+            <div class="contribution-wrapper">
+                <!-- Day labels -->
+                <div class="days">
+                    <span></span>
+                    <span>Mon</span>
+                    <span></span>
+                    <span>Wed</span>
+                    <span></span>
+                    <span>Fri</span>
+                    <span></span>
+                </div>
+                <!-- Heatmap -->
+                <div id="heatmap" class="heatmap"></div>
+            </div>
 
-        <div class="legend-box">
-            <span>Less</span>
-            <div style="background:#ebedf0"></div>
-            <div style="background:#9be9a8"></div>
-            <div style="background:#40c463"></div>
-            <div style="background:#30a14e"></div>
-            <div style="background:#216e39"></div>
-            <span>More</span>
+            <!-- Legend -->
+            <div class="legend">
+                <span>Learn how we count contributions</span>
+                <div class="legend-box">
+                    <span>Less</span>
+                    <div style="background:#ebedf0"></div>
+                    <div style="background:#9be9a8"></div>
+                    <div style="background:#40c463"></div>
+                    <div style="background:#30a14e"></div>
+                    <div style="background:#216e39"></div>
+                    <span>More</span>
+                </div>
+            </div>
         </div>
     </div>
 
-</div>
+    <script>
+    async function merge() {
 
-<script>
-async function merge() {
+        const usernames = document.getElementById('usernames').value;
 
-    const usernames = document.getElementById('usernames').value;
+        const res = await fetch('/merge', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ usernames })
+        });
 
-    const res = await fetch('/merge', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({ usernames })
-    });
+        const data = await res.json();
 
-    const data = await res.json();
-
-    showHeatmap(data.merged);
-}
-
-/**
- * Generate Month Labels
- */
-function generateMonths(dates) {
-    const monthsContainer = document.getElementById('months');
-    monthsContainer.innerHTML = '';
-
-    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
-    let lastMonth = -1;
-
-    dates.forEach(date => {
-        const d = new Date(date);
-        const month = d.getMonth();
-
-        if (month !== lastMonth) {
-            const div = document.createElement('div');
-            div.textContent = monthNames[month];
-            monthsContainer.appendChild(div);
-            lastMonth = month;
-        } else {
-            const div = document.createElement('div');
-            div.textContent = '';
-            monthsContainer.appendChild(div);
-        }
-    });
-}
-
-/**
- * Heatmap render
- */
-function showHeatmap(merged) {
-
-    const container = document.getElementById('heatmap');
-
-    const entries = Object.entries(merged)
-        .sort((a, b) => new Date(a[0]) - new Date(b[0]))
-        .slice(-371);
-
-    let total = 0;
-
-    // Generate months
-    generateMonths(entries.map(e => e[0]));
-
-    // Fill missing days (IMPORTANT for alignment)
-    const full = [];
-    let start = new Date(entries[0][0]);
-    let end = new Date(entries[entries.length - 1][0]);
-
-    let map = Object.fromEntries(entries);
-
-    while (start <= end) {
-        let dateStr = start.toISOString().split('T')[0];
-        full.push([dateStr, map[dateStr] || 0]);
-        start.setDate(start.getDate() + 1);
+        showProfiles(data.profiles);
+        showHeatmap(data.merged);
     }
 
-    let html = '';
+    /**
+     * Generate Month Labels
+     */
+    function generateMonths(dates) {
+        const monthsContainer = document.getElementById('months');
+        monthsContainer.innerHTML = '';
 
-    full.forEach(([date, count]) => {
+        const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-        total += count;
+        let lastMonth = -1;
 
-        let level = 0;
-        if (count > 0) level = 1;
-        if (count > 5) level = 2;
-        if (count > 10) level = 3;
-        if (count > 20) level = 4;
+        dates.forEach(date => {
+            const d = new Date(date);
+            const month = d.getMonth();
 
-        html += `<div class="cell level-${level}" title="${date}: ${count}"></div>`;
-    });
+            if (month !== lastMonth) {
+                const div = document.createElement('div');
+                div.textContent = monthNames[month];
+                monthsContainer.appendChild(div);
+                lastMonth = month;
+            } else {
+                const div = document.createElement('div');
+                div.textContent = '';
+                monthsContainer.appendChild(div);
+            }
+        });
+    }
 
-    container.innerHTML = html;
+    /**
+     * Heatmap render
+     */
+    function showHeatmap(merged) {
 
-    document.getElementById('totalText').innerText =
-        total + ' contributions in the last year';
-}
-</script>
+        const container = document.getElementById('heatmap');
+
+        const entries = Object.entries(merged)
+            .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+            .slice(-371);
+
+        let total = 0;
+
+        // Generate months
+        generateMonths(entries.map(e => e[0]));
+
+        // Fill missing days (IMPORTANT for alignment)
+        const full = [];
+        let start = new Date(entries[0][0]);
+        let end = new Date(entries[entries.length - 1][0]);
+
+        let map = Object.fromEntries(entries);
+
+        while (start <= end) {
+            let dateStr = start.toISOString().split('T')[0];
+            full.push([dateStr, map[dateStr] || 0]);
+            start.setDate(start.getDate() + 1);
+        }
+
+        let html = '';
+
+        full.forEach(([date, count]) => {
+
+            total += count;
+
+            let level = 0;
+            if (count > 0) level = 1;
+            if (count > 5) level = 2;
+            if (count > 10) level = 3;
+            if (count > 20) level = 4;
+
+            html += `<div class="cell level-${level}" title="${date}: ${count}"></div>`;
+        });
+
+        container.innerHTML = html;
+
+        document.getElementById('totalText').innerText =
+            total + ' contributions in the last year';
+    }
+
+    function showProfiles(profiles) {
+        const container = document.getElementById('profiles');
+
+        container.innerHTML = profiles.map(p => `
+            <div style="text-align:center; padding:15px;">
+                
+                <img src="${p.avatar}" 
+                    style="width:120px; border-radius:50%; margin-bottom:10px;">
+
+                <h5>${p.name || p.username}</h5>
+
+                <p style="color:#57606a;">@${p.username}</p>
+
+                <!-- 🔗 PROFILE LINK -->
+                <a href="${p.url}" target="_blank" 
+                style="text-decoration:none; color:#0969da; font-weight:500;">
+                View GitHub Profile →
+                </a>
+
+            </div>
+        `).join('');
+    }
+    </script>
 
 </body>
 </html>
