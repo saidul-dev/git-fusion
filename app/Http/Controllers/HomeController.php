@@ -38,9 +38,12 @@ class HomeController extends Controller
 
         $merged = $this->mergeContributions($usersData);
 
+        $repos = $this->fetchRepositories($usernames);
+
         return response()->json([
             'profiles' => $profiles,
-            'merged' => $merged
+            'merged' => $merged,
+            'repos' => $repos // ✅ NEW
         ]);
     }
 
@@ -102,5 +105,41 @@ class HomeController extends Controller
         }
 
         return $merged; 
+    }
+
+    function fetchRepositories($usernames)
+    {
+        $allRepos = [];
+
+        foreach ($usernames as $username) {
+            $username = trim($username);
+            if (!$username) continue;
+
+            $response = Http::get("https://api.github.com/users/{$username}/repos", [
+                'sort' => 'stars',
+                'per_page' => 5
+            ]);
+
+            if ($response->successful()) {
+                $repos = $response->json();
+
+                foreach ($repos as $repo) {
+                    $allRepos[] = [
+                        'name' => $repo['name'],
+                        'url' => $repo['html_url'],
+                        'stars' => $repo['stargazers_count'],
+                        'language' => $repo['language'],
+                    ];
+                }
+            }
+        }
+
+        // Sort all repos by stars
+        usort($allRepos, function ($a, $b) {
+            return $b['stars'] <=> $a['stars'];
+        });
+
+        // Return top 6
+        return array_slice($allRepos, 0, 6);
     }
 }

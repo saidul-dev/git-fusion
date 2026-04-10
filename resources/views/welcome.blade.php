@@ -112,6 +112,15 @@
             height: 11px;
         }
 
+        #repository {
+            margin-top: 30px;
+        }
+        .repos {
+            margin-top: 20px;
+            display: grid;
+            gap: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -159,6 +168,9 @@
                     <span>More</span>
                 </div>
             </div>
+            <h3 id="repository">Popular Repositories</h3>
+            <div class="repos" id="repos">
+            </div>
         </div>
     </div>
 
@@ -179,6 +191,7 @@
         const data = await res.json();
 
         showProfiles(data.profiles);
+        showRepos(data.repos);
         showHeatmap(data.merged);
     }
 
@@ -278,6 +291,25 @@
                 style="text-decoration:none; color:#0969da; font-weight:500;">
                 View GitHub Profile →
                 </a>
+
+            </div>
+        `).join('');
+    }
+
+    function showRepos(repos) {
+        const container = document.getElementById('repos');
+
+        container.innerHTML = repos.map(r => `
+            <div style="border:1px solid #d0d7de; padding:10px; border-radius:6px; background:#fff;">
+                
+                <a href="${r.url}" target="_blank" 
+                style="font-weight:600; color:#0969da; text-decoration:none;">
+                ${r.name}
+                </a>
+
+                <div style="font-size:12px; color:#57606a; margin-top:5px;">
+                    ${r.language || 'Unknown'} • ⭐ ${r.stars}
+                </div>
 
             </div>
         `).join('');
