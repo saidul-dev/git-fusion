@@ -130,6 +130,9 @@
     <div class="search">
         <input type="text" id="usernames" placeholder="username1, username2" value="saidul-dev, saidul1996, saidulerpseopage1">
         <button onclick="merge()">Submit</button>
+
+        <select id="yearFilter" onchange="applyYearFilter()" style="padding:10px; margin-left:10px; display:none;">
+        </select>
     </div>
 
     <div class="contribution">
@@ -175,145 +178,242 @@
     </div>
 
     <script>
-    async function merge() {
+        let fullMergedData = {};
+        let selectedYear = "last";
 
-        const usernames = document.getElementById('usernames').value;
+        async function merge() {
 
-        const res = await fetch('/merge', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ usernames })
-        });
+            const usernames = document.getElementById('usernames').value;
 
-        const data = await res.json();
+            const res = await fetch('/merge', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ usernames })
+            });
 
-        showProfiles(data.profiles);
-        showRepos(data.repos);
-        showHeatmap(data.merged);
-    }
+            const data = await res.json();
 
-    /**
-     * Generate Month Labels
-     */
-    function generateMonths(dates) {
-        const monthsContainer = document.getElementById('months');
-        monthsContainer.innerHTML = '';
+            fullMergedData = data.merged;
 
-        const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+            showProfiles(data.profiles);
+            showRepos(data.repos);
 
-        let lastMonth = -1;
+            generateYearFilter(data.yearRange.min, data.yearRange.max);
 
-        dates.forEach(date => {
-            const d = new Date(date);
-            const month = d.getMonth();
-
-            if (month !== lastMonth) {
-                const div = document.createElement('div');
-                div.textContent = monthNames[month];
-                monthsContainer.appendChild(div);
-                lastMonth = month;
-            } else {
-                const div = document.createElement('div');
-                div.textContent = '';
-                monthsContainer.appendChild(div);
-            }
-        });
-    }
-
-    /**
-     * Heatmap render
-     */
-    function showHeatmap(merged) {
-
-        const container = document.getElementById('heatmap');
-
-        const entries = Object.entries(merged)
-            .sort((a, b) => new Date(a[0]) - new Date(b[0]))
-            .slice(-371);
-
-        let total = 0;
-
-        // Generate months
-        generateMonths(entries.map(e => e[0]));
-
-        // Fill missing days (IMPORTANT for alignment)
-        const full = [];
-        let start = new Date(entries[0][0]);
-        let end = new Date(entries[entries.length - 1][0]);
-
-        let map = Object.fromEntries(entries);
-
-        while (start <= end) {
-            let dateStr = start.toISOString().split('T')[0];
-            full.push([dateStr, map[dateStr] || 0]);
-            start.setDate(start.getDate() + 1);
+            applyYearFilter(); // default load
         }
 
-        let html = '';
+        function generateYearFilter(minYear, maxYear) {
 
-        full.forEach(([date, count]) => {
+            const yearSelect = document.getElementById("yearFilter");
+            yearSelect.innerHTML = "";
 
-            total += count;
+            // Default option
+            yearSelect.innerHTML += `<option value="last">Last Year</option>`;
 
-            let level = 0;
-            if (count > 0) level = 1;
-            if (count > 5) level = 2;
-            if (count > 10) level = 3;
-            if (count > 20) level = 4;
+            for (let y = minYear; y <= maxYear; y++) {
+                yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+            }
 
-            html += `<div class="cell level-${level}" title="${date}: ${count}"></div>`;
-        });
+            yearSelect.style.display = "inline-block";
+        }
 
-        container.innerHTML = html;
+        function applyYearFilter() {
 
-        document.getElementById('totalText').innerText =
-            total + ' contributions in the last year';
-    }
+            const yearSelect = document.getElementById("yearFilter");
+            selectedYear = yearSelect.value;
 
-    function showProfiles(profiles) {
-        const container = document.getElementById('profiles');
+            if (selectedYear === "last") {
+                showHeatmap(fullMergedData);
+                return;
+            }
 
-        container.innerHTML = profiles.map(p => `
-            <div style="text-align:center; padding:15px;">
-                
-                <img src="${p.avatar}" 
-                    style="width:120px; border-radius:50%; margin-bottom:10px;">
+            const filtered = {};
 
-                <h5>${p.name || p.username}</h5>
+            Object.entries(fullMergedData).forEach(([date, count]) => {
+                const d = new Date(date);
+                const year = d.getFullYear();
 
-                <p style="color:#57606a;">@${p.username}</p>
+                if (year == selectedYear) {
+                    filtered[date] = count;
+                }
+            });
 
-                <!-- 🔗 PROFILE LINK -->
-                <a href="${p.url}" target="_blank" 
-                style="text-decoration:none; color:#0969da; font-weight:500;">
-                View GitHub Profile →
-                </a>
+            showHeatmapYear(filtered, selectedYear);
+        }
 
-            </div>
-        `).join('');
-    }
+        /**
+         * Generate Month Labels
+         */
+        function generateMonths(dates) {
+            const monthsContainer = document.getElementById('months');
+            monthsContainer.innerHTML = '';
 
-    function showRepos(repos) {
-        const container = document.getElementById('repos');
+            const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-        container.innerHTML = repos.map(r => `
-            <div style="border:1px solid #d0d7de; padding:10px; border-radius:6px; background:#fff;">
-                
-                <a href="${r.url}" target="_blank" 
-                style="font-weight:600; color:#0969da; text-decoration:none;">
-                ${r.name}
-                </a>
+            let lastMonth = -1;
 
-                <div style="font-size:12px; color:#57606a; margin-top:5px;">
-                    ${r.language || 'Unknown'} • ⭐ ${r.stars}
+            dates.forEach(date => {
+                const d = new Date(date);
+                const month = d.getMonth();
+
+                if (month !== lastMonth) {
+                    const div = document.createElement('div');
+                    div.textContent = monthNames[month];
+                    monthsContainer.appendChild(div);
+                    lastMonth = month;
+                } else {
+                    const div = document.createElement('div');
+                    div.textContent = '';
+                    monthsContainer.appendChild(div);
+                }
+            });
+        }
+
+        /**
+         * Heatmap render
+         */
+        function showHeatmap(merged) {
+
+            const container = document.getElementById('heatmap');
+
+            let today = new Date();
+            let startDate = new Date();
+            startDate.setDate(today.getDate() - 365);
+
+            // convert to YYYY-MM-DD
+            function formatDate(d) {
+                return d.toISOString().split("T")[0];
+            }
+
+            const startStr = formatDate(startDate);
+            const endStr = formatDate(today);
+
+            const map = merged;
+
+            const full = [];
+            let cursor = new Date(startDate);
+
+            while (cursor <= today) {
+                let dateStr = formatDate(cursor);
+                full.push([dateStr, map[dateStr] || 0]);
+                cursor.setDate(cursor.getDate() + 1);
+            }
+
+            // Generate months based on this full range
+            generateMonths(full.map(e => e[0]));
+
+            let total = 0;
+            let html = '';
+
+            full.forEach(([date, count]) => {
+
+                total += count;
+
+                let level = 0;
+                if (count > 0) level = 1;
+                if (count > 5) level = 2;
+                if (count > 10) level = 3;
+                if (count > 20) level = 4;
+
+                html += `<div class="cell level-${level}" title="${date}: ${count}"></div>`;
+            });
+
+            container.innerHTML = html;
+
+            document.getElementById('totalText').innerText =
+                total + ' contributions in the last year';
+        }
+
+        function showHeatmapYear(merged, year) {
+
+            const container = document.getElementById('heatmap');
+
+            const entries = Object.entries(merged)
+                .sort((a, b) => new Date(a[0]) - new Date(b[0]));
+
+            // Fill missing days
+            const full = [];
+            let start = new Date(year + "-01-01");
+            let end = new Date(year + "-12-31");
+
+            let map = Object.fromEntries(entries);
+
+            while (start <= end) {
+                let dateStr = start.toISOString().split('T')[0];
+                full.push([dateStr, map[dateStr] || 0]);
+                start.setDate(start.getDate() + 1);
+            }
+
+            // Generate months based on full year
+            generateMonths(full.map(e => e[0]));
+
+            let total = 0;
+            let html = '';
+
+            full.forEach(([date, count]) => {
+
+                total += count;
+
+                let level = 0;
+                if (count > 0) level = 1;
+                if (count > 5) level = 2;
+                if (count > 10) level = 3;
+                if (count > 20) level = 4;
+
+                html += `<div class="cell level-${level}" title="${date}: ${count}"></div>`;
+            });
+
+            container.innerHTML = html;
+
+            document.getElementById('totalText').innerText =
+                total + ' contributions in ' + year;
+        }
+
+        function showProfiles(profiles) {
+            const container = document.getElementById('profiles');
+
+            container.innerHTML = profiles.map(p => `
+                <div style="text-align:center; padding:15px;">
+                    
+                    <img src="${p.avatar}" 
+                        style="width:120px; border-radius:50%; margin-bottom:10px;">
+
+                    <h5>${p.name || p.username}</h5>
+
+                    <p style="color:#57606a;">@${p.username}</p>
+
+                    <!-- 🔗 PROFILE LINK -->
+                    <a href="${p.url}" target="_blank" 
+                    style="text-decoration:none; color:#0969da; font-weight:500;">
+                    View GitHub Profile →
+                    </a>
+
                 </div>
+            `).join('');
+        }
 
-            </div>
-        `).join('');
-    }
+        function showRepos(repos) {
+            const container = document.getElementById('repos');
+
+            container.innerHTML = repos.map(r => `
+                <div style="border:1px solid #d0d7de; padding:10px; border-radius:6px; background:#fff;">
+                    
+                    <a href="${r.url}" target="_blank" 
+                    style="font-weight:600; color:#0969da; text-decoration:none;">
+                    ${r.name}
+                    </a>
+
+                    <div style="font-size:12px; color:#57606a; margin-top:5px;">
+                        ${r.language || 'Unknown'} • ⭐ ${r.stars}
+                    </div>
+
+                </div>
+            `).join('');
+        }
     </script>
 
 </body>

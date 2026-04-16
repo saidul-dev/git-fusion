@@ -18,46 +18,73 @@ class HomeController extends Controller
 
         $usersData = [];
         $profiles = [];
+        $years = [];
 
         foreach ($usernames as $username) {
             $username = trim($username);
             if (!$username) continue;
 
-            $data = $this->fetchContributions($username);
-            $usersData[] = $data;
+            $profileData = $this->fetchProfile($username);
 
-            if (isset($data['data']['user'])) {
-                $profiles[] = [
-                    'name' => $data['data']['user']['name'],
-                    'avatar' => $data['data']['user']['avatarUrl'],
-                    'url' => $data['data']['user']['url'],
-                    'username' => $username
-                ];
+            if (!$profileData) continue;
+
+            $createdYear = (int)date('Y', strtotime($profileData['created_at']));
+            $years[] = $createdYear;
+
+            $profiles[] = [
+                'name' => $profileData['name'] ?? null,
+                'avatar' => $profileData['avatar_url'] ?? null,
+                'url' => $profileData['html_url'] ?? null,
+                'username' => $username,
+                'created_year' => $createdYear
+            ];
+        }
+
+        $minYear = count($years) ? min($years) : date('Y');
+        $maxYear = date('Y');
+
+        // ✅ Fetch contributions for all years (from minYear to maxYear)
+        foreach ($usernames as $username) {
+
+            $username = trim($username);
+            if (!$username) continue;
+
+            for ($y = $minYear; $y <= $maxYear; $y++) {
+
+                $from = $y . "-01-01T00:00:00Z";
+                $to   = $y . "-12-31T23:59:59Z";
+
+                $data = $this->fetchContributions($username, $from, $to);
+                $usersData[] = $data;
             }
         }
 
         $merged = $this->mergeContributions($usersData);
-
         $repos = $this->fetchRepositories($usernames);
 
         return response()->json([
             'profiles' => $profiles,
             'merged' => $merged,
-            'repos' => $repos // ✅ NEW
+            'repos' => $repos,
+            'yearRange' => [
+                'min' => $minYear,
+                'max' => $maxYear
+            ]
         ]);
     }
 
     /**
      * Fetch contributions from GitHub
      */
-    function fetchContributions($username) {
+    function fetchContributions($username, $from = null, $to = null)
+    {
         $query = '
-        query($username:String!) {
+        query($username:String!, $from:DateTime, $to:DateTime) {
             user(login: $username) {
                 name
                 avatarUrl
                 url
-                contributionsCollection {
+                contributionsCollection(from: $from, to: $to) {
                     contributionCalendar {
                         weeks {
                             contributionDays {
@@ -74,7 +101,11 @@ class HomeController extends Controller
             'Authorization' => 'Bearer ' . env('GITHUB_TOKEN'),
         ])->post('https://api.github.com/graphql', [
             'query' => $query,
-            'variables' => ['username' => $username]
+            'variables' => [
+                'username' => $username,
+                'from' => $from,
+                'to' => $to
+            ]
         ]);
 
         return $response->json();
@@ -148,5 +179,18 @@ class HomeController extends Controller
 
         // ✅ Always return max 6
         return array_slice($allRepos, 0, 6);
+    }
+
+    function fetchProfile($username)
+    {
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . env('GITHUB_TOKEN'),
+        ])->get("https://api.github.com/users/{$username}");
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
     }
 }
