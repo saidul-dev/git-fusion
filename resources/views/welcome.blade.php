@@ -128,7 +128,7 @@
     <h2>GitHub Contribution Merger</h2>
 
     <div class="search">
-        <input type="text" id="usernames" placeholder="username1, username2">
+        <input type="text" id="usernames" placeholder="username1, username2" value="saidul-dev, saidul1996, saidulerpseopage1">
         <button onclick="merge()">Submit</button>
     </div>
 
