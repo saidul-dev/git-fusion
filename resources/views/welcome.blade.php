@@ -284,13 +284,9 @@
             let startDate = new Date();
             startDate.setDate(today.getDate() - 365);
 
-            // convert to YYYY-MM-DD
             function formatDate(d) {
                 return d.toISOString().split("T")[0];
             }
-
-            const startStr = formatDate(startDate);
-            const endStr = formatDate(today);
 
             const map = merged;
 
@@ -303,11 +299,19 @@
                 cursor.setDate(cursor.getDate() + 1);
             }
 
-            // Generate months based on this full range
+            // Generate months based on full range
             generateMonths(full.map(e => e[0]));
 
             let total = 0;
             let html = '';
+
+            // ✅ FIX: add empty blocks before first day to align weekday
+            let firstDay = new Date(full[0][0]).getDay(); 
+            // getDay(): Sun=0, Mon=1, ... Sat=6
+
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div class="cell" style="background:transparent;"></div>`;
+            }
 
             full.forEach(([date, count]) => {
 
@@ -335,7 +339,6 @@
             const entries = Object.entries(merged)
                 .sort((a, b) => new Date(a[0]) - new Date(b[0]));
 
-            // Fill missing days
             const full = [];
             let start = new Date(year + "-01-01");
             let end = new Date(year + "-12-31");
@@ -348,11 +351,17 @@
                 start.setDate(start.getDate() + 1);
             }
 
-            // Generate months based on full year
             generateMonths(full.map(e => e[0]));
 
             let total = 0;
             let html = '';
+
+            // ✅ FIX alignment
+            let firstDay = new Date(full[0][0]).getDay();
+
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div class="cell" style="background:transparent;"></div>`;
+            }
 
             full.forEach(([date, count]) => {
 
