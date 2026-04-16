@@ -111,13 +111,19 @@ class HomeController extends Controller
     {
         $allRepos = [];
 
+        $usernames = array_filter(array_map('trim', $usernames));
+        $totalUsers = count($usernames);
+
+        if ($totalUsers === 0) return [];
+
+        // ✅ Dynamic per user
+        $perUser = ceil(6 / $totalUsers);
+
         foreach ($usernames as $username) {
-            $username = trim($username);
-            if (!$username) continue;
 
             $response = Http::get("https://api.github.com/users/{$username}/repos", [
                 'sort' => 'stars',
-                'per_page' => 5
+                'per_page' => $perUser
             ]);
 
             if ($response->successful()) {
@@ -129,6 +135,7 @@ class HomeController extends Controller
                         'url' => $repo['html_url'],
                         'stars' => $repo['stargazers_count'],
                         'language' => $repo['language'],
+                        'owner' => $username
                     ];
                 }
             }
@@ -139,7 +146,7 @@ class HomeController extends Controller
             return $b['stars'] <=> $a['stars'];
         });
 
-        // Return top 6
+        // ✅ Always return max 6
         return array_slice($allRepos, 0, 6);
     }
 }
