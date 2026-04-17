@@ -584,7 +584,13 @@
 </head>
 <body>
 
-    <h2>GitHub Contribution Merger</h2>
+    <h2 style="margin-bottom:6px;">GitFusion — GitHub Contribution Dashboard</h2>
+
+    <p style="margin-top:0; color:#57606a; font-size:14px; line-height:1.6;">
+        Add one or more GitHub usernames to combine their contribution history into a single heatmap.  
+        You can filter by year and view popular repositories instantly.  
+        <strong>Please wait a few seconds after clicking Submit</strong> as it may take time to fetch real data from GitHub.
+    </p>
 
     <div class="search">
         <input type="text" id="usernames" placeholder="username1, username2" value="saidul-dev, saidul1996, saidulerpseopage1">
