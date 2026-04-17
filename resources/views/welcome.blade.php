@@ -349,6 +349,99 @@
             font-weight: 600;
         }
 
+/* Sidebar Advertisement */
+.sidebar-ad {
+    margin: 14px;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(9, 105, 218, 0.08), rgba(46, 160, 67, 0.06));
+    box-shadow: 0 6px 14px rgba(27, 31, 36, 0.06);
+}
+
+.sidebar-ad-header {
+    margin-bottom: 10px;
+}
+
+.sidebar-ad-header h4 {
+    margin: 6px 0 0 0;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.sidebar-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(46, 160, 67, 0.14);
+    border: 1px solid rgba(46, 160, 67, 0.25);
+    color: #1f883d;
+}
+
+.sidebar-ad-text {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--muted);
+    margin: 0 0 12px 0;
+}
+
+.sidebar-ad-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.sidebar-ad-skills span {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(9, 105, 218, 0.08);
+    border: 1px solid rgba(9, 105, 218, 0.18);
+    color: var(--primary);
+}
+
+.sidebar-ad-btn {
+    display: block;
+    text-align: center;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--primary);
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 800;
+    transition: 0.2s ease;
+    margin-bottom: 10px;
+}
+
+.sidebar-ad-btn:hover {
+    background: var(--primary-hover);
+}
+
+.sidebar-ad-btn-outline {
+    display: block;
+    text-align: center;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(9, 105, 218, 0.35);
+    background: rgba(255, 255, 255, 0.6);
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 800;
+    transition: 0.2s ease;
+}
+
+.sidebar-ad-btn-outline:hover {
+    background: rgba(9, 105, 218, 0.08);
+    border-color: var(--primary);
+}
+
         /* RESPONSIVE */
         @media (max-width: 1050px) {
             body {
@@ -384,6 +477,34 @@
                 <h3>Profiles</h3>
             </div>
             <div id="profiles"></div>
+
+            <!-- Advertisement Card -->
+            <div class="sidebar-ad">
+                <div class="sidebar-ad-header">
+                    <span class="sidebar-badge">Hire Me</span>
+                    <h4>Need a Web Developer?</h4>
+                </div>
+
+                <p class="sidebar-ad-text">
+                    I build secure, scalable web applications with proper server deployment and optimization.
+                    If you need hosting setup, VPS configuration, or Laravel/React development — feel free to contact me.
+                </p>
+
+                <div class="sidebar-ad-skills">
+                    <span>Laravel</span>
+                    <span>React</span>
+                    <span>Node.js</span>
+                    <span>Server Setup</span>
+                </div>
+
+                <a href="https://saidul.software.uttarainfotech.com/" target="_blank" class="sidebar-ad-btn">
+                    View Portfolio →
+                </a>
+
+                <a href="https://saidul.software.uttarainfotech.com/contact" target="_blank" class="sidebar-ad-btn-outline">
+                    Hire / Contact
+                </a>
+            </div>
         </div>
 
         <div class="card">
