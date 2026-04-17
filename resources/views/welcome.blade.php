@@ -100,6 +100,129 @@
             margin-left: auto;
         }
 
+        /* Skeleton Loader */
+        .skeleton-wrapper {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .skeleton-profile {
+            width: 320px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--card);
+            box-shadow: var(--shadow);
+            padding: 14px;
+        }
+
+        .skeleton-main {
+            flex: 1;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--card);
+            box-shadow: var(--shadow);
+            padding: 20px;
+        }
+
+        .sk-header {
+            height: 45px;
+            border-radius: 10px;
+            margin-bottom: 14px;
+            background: #e6ebf1;
+        }
+
+        .sk-profile-card {
+            display: flex;
+            gap: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+        }
+
+        .sk-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #e6ebf1;
+        }
+
+        .sk-lines {
+            flex: 1;
+        }
+
+        .sk-line {
+            height: 10px;
+            border-radius: 6px;
+            background: #e6ebf1;
+            margin-bottom: 10px;
+        }
+
+        .w-80 { width: 80%; }
+        .w-70 { width: 70%; }
+        .w-60 { width: 60%; }
+
+        .sk-ad {
+            height: 200px;
+            border-radius: 14px;
+            background: #e6ebf1;
+            margin-top: 15px;
+        }
+
+        .sk-title {
+            height: 22px;
+            width: 50%;
+            border-radius: 8px;
+            background: #e6ebf1;
+            margin-bottom: 15px;
+        }
+
+        .sk-heatmap {
+            height: 160px;
+            border-radius: 12px;
+            background: #e6ebf1;
+            margin-bottom: 20px;
+        }
+
+        .sk-repo-title {
+            height: 18px;
+            width: 40%;
+            border-radius: 8px;
+            background: #e6ebf1;
+            margin-bottom: 12px;
+        }
+
+        .sk-repo-card {
+            height: 70px;
+            border-radius: 12px;
+            background: #e6ebf1;
+            margin-bottom: 12px;
+        }
+
+        /* Skeleton Animation */
+        .skeleton-wrapper div {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skeleton-wrapper div::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -150px;
+            width: 150px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+            animation: shimmer 1.2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -150px; }
+            100% { left: 100%; }
+        }
+
         /* MAIN LAYOUT */
         .contribution {
             display: flex;
@@ -349,98 +472,98 @@
             font-weight: 600;
         }
 
-/* Sidebar Advertisement */
-.sidebar-ad {
-    margin: 14px;
-    padding: 16px;
-    border-radius: 14px;
-    border: 1px solid var(--border);
-    background: linear-gradient(135deg, rgba(9, 105, 218, 0.08), rgba(46, 160, 67, 0.06));
-    box-shadow: 0 6px 14px rgba(27, 31, 36, 0.06);
-}
+        /* Sidebar Advertisement */
+        .sidebar-ad {
+            margin: 14px;
+            padding: 16px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(9, 105, 218, 0.08), rgba(46, 160, 67, 0.06));
+            box-shadow: 0 6px 14px rgba(27, 31, 36, 0.06);
+        }
 
-.sidebar-ad-header {
-    margin-bottom: 10px;
-}
+        .sidebar-ad-header {
+            margin-bottom: 10px;
+        }
 
-.sidebar-ad-header h4 {
-    margin: 6px 0 0 0;
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--text);
-}
+        .sidebar-ad-header h4 {
+            margin: 6px 0 0 0;
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text);
+        }
 
-.sidebar-badge {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 800;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: rgba(46, 160, 67, 0.14);
-    border: 1px solid rgba(46, 160, 67, 0.25);
-    color: #1f883d;
-}
+        .sidebar-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(46, 160, 67, 0.14);
+            border: 1px solid rgba(46, 160, 67, 0.25);
+            color: #1f883d;
+        }
 
-.sidebar-ad-text {
-    font-size: 12.5px;
-    line-height: 1.6;
-    color: var(--muted);
-    margin: 0 0 12px 0;
-}
+        .sidebar-ad-text {
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: var(--muted);
+            margin: 0 0 12px 0;
+        }
 
-.sidebar-ad-skills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 14px;
-}
+        .sidebar-ad-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
 
-.sidebar-ad-skills span {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: rgba(9, 105, 218, 0.08);
-    border: 1px solid rgba(9, 105, 218, 0.18);
-    color: var(--primary);
-}
+        .sidebar-ad-skills span {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(9, 105, 218, 0.08);
+            border: 1px solid rgba(9, 105, 218, 0.18);
+            color: var(--primary);
+        }
 
-.sidebar-ad-btn {
-    display: block;
-    text-align: center;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: var(--primary);
-    color: #fff;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 800;
-    transition: 0.2s ease;
-    margin-bottom: 10px;
-}
+        .sidebar-ad-btn {
+            display: block;
+            text-align: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: var(--primary);
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+            transition: 0.2s ease;
+            margin-bottom: 10px;
+        }
 
-.sidebar-ad-btn:hover {
-    background: var(--primary-hover);
-}
+        .sidebar-ad-btn:hover {
+            background: var(--primary-hover);
+        }
 
-.sidebar-ad-btn-outline {
-    display: block;
-    text-align: center;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid rgba(9, 105, 218, 0.35);
-    background: rgba(255, 255, 255, 0.6);
-    color: var(--primary);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 800;
-    transition: 0.2s ease;
-}
+        .sidebar-ad-btn-outline {
+            display: block;
+            text-align: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(9, 105, 218, 0.35);
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+            transition: 0.2s ease;
+        }
 
-.sidebar-ad-btn-outline:hover {
-    background: rgba(9, 105, 218, 0.08);
-    border-color: var(--primary);
-}
+        .sidebar-ad-btn-outline:hover {
+            background: rgba(9, 105, 218, 0.08);
+            border-color: var(--primary);
+        }
 
         /* RESPONSIVE */
         @media (max-width: 1050px) {
@@ -472,6 +595,45 @@
     </div>
 
     <div class="contribution">
+
+        <!-- Skeleton Loader -->
+        <div id="skeletonLoader" class="skeleton-wrapper" style="display:none;">
+            <div class="skeleton-profile">
+                <div class="sk-header"></div>
+
+                <div class="sk-profile-card">
+                    <div class="sk-avatar"></div>
+                    <div class="sk-lines">
+                        <div class="sk-line w-80"></div>
+                        <div class="sk-line w-60"></div>
+                        <div class="sk-line w-70"></div>
+                    </div>
+                </div>
+
+                <div class="sk-profile-card">
+                    <div class="sk-avatar"></div>
+                    <div class="sk-lines">
+                        <div class="sk-line w-80"></div>
+                        <div class="sk-line w-60"></div>
+                        <div class="sk-line w-70"></div>
+                    </div>
+                </div>
+
+                <div class="sk-ad"></div>
+            </div>
+
+            <div class="skeleton-main">
+                <div class="sk-title"></div>
+                <div class="sk-heatmap"></div>
+                <div class="sk-repo-title"></div>
+
+                <div class="sk-repo-card"></div>
+                <div class="sk-repo-card"></div>
+                <div class="sk-repo-card"></div>
+            </div>
+        </div>
+
+        <!-- REAL CONTENT -->
         <div class="profile" id="profile">
             <div class="profile-header">
                 <h3>Profiles</h3>
@@ -510,11 +672,9 @@
         <div class="card">
             <h3 id="totalText">0 contributions in the last year</h3>
 
-            <!-- Month labels -->
             <div class="months" id="months"></div>
 
             <div class="contribution-wrapper">
-                <!-- Day labels -->
                 <div class="days">
                     <span></span>
                     <span>Mon</span>
@@ -525,11 +685,9 @@
                     <span></span>
                 </div>
 
-                <!-- Heatmap -->
                 <div id="heatmap" class="heatmap"></div>
             </div>
 
-            <!-- Legend -->
             <div class="legend">
                 <span>Learn how we count contributions</span>
                 <div class="legend-box">
@@ -556,25 +714,42 @@
 
             const usernames = document.getElementById('usernames').value;
 
-            const res = await fetch('/merge', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ usernames })
-            });
+            // Show skeleton loader, hide real content
+            document.getElementById("skeletonLoader").style.display = "flex";
+            document.getElementById("profile").style.display = "none";
+            document.querySelector(".card").style.display = "none";
 
-            const data = await res.json();
+            try {
 
-            fullMergedData = data.merged;
+                const res = await fetch('/merge', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ usernames })
+                });
 
-            showProfiles(data.profiles);
-            showRepos(data.repos);
+                const data = await res.json();
 
-            generateYearFilter(data.yearRange.min, data.yearRange.max);
+                fullMergedData = data.merged;
 
-            applyYearFilter(); // default load
+                showProfiles(data.profiles);
+                showRepos(data.repos);
+
+                generateYearFilter(data.yearRange.min, data.yearRange.max);
+
+                applyYearFilter();
+
+            } catch (err) {
+                alert("Failed to fetch GitHub data!");
+                console.error(err);
+            }
+
+            // Hide skeleton loader, show real content
+            document.getElementById("skeletonLoader").style.display = "none";
+            document.getElementById("profile").style.display = "block";
+            document.querySelector(".card").style.display = "block";
         }
 
         function generateYearFilter(minYear, maxYear) {
