@@ -598,6 +598,9 @@
         <button onclick="openSaveModal()" id="saveBtn" style="display:none; background:#1f883d;">
             Save & Generate URL
         </button>
+        <button onclick="copyCurrentUrl()" id="copyUrlBtn" style="display:none; background:#8250df;">
+            Copy URL
+        </button>
         <select id="yearFilter" onchange="applyYearFilter()" style="display:none;">
         </select>
     </div>
@@ -745,10 +748,25 @@
 
         window.onload = function () {
             const usernames = document.getElementById("usernames").value.trim();
+
+            if (window.location.pathname.length > 1) {
+                document.getElementById("copyUrlBtn").style.display = "inline-block";
+            }
+
             if (usernames.length > 0) {
                 merge();
             }
         };
+
+        async function copyCurrentUrl() {
+            try {
+                await navigator.clipboard.writeText(window.location.href);
+                alert("URL copied successfully!");
+            } catch (err) {
+                console.error(err);
+                alert("Copy failed! Please copy manually.");
+            }
+        }
 
         async function merge() {
 
@@ -1041,6 +1059,8 @@
 
                 window.history.pushState({}, "", data.url);
 
+                document.getElementById("copyUrlBtn").style.display = "inline-block";
+                
             } catch (err) {
                 console.error(err);
                 alert("Failed to save dashboard!");
