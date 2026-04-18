@@ -593,9 +593,11 @@
     </p>
 
     <div class="search">
-        <input type="text" id="usernames" placeholder="username1, username2" value="saidul-dev, saidul1996, saidulerpseopage1">
+        <input type="text" id="usernames" value="{{ $savedUsernames ?? '' }}" placeholder="username1, username2">
         <button onclick="merge()">Submit</button>
-
+        <button onclick="openSaveModal()" id="saveBtn" style="display:none; background:#1f883d;">
+            Save & Generate URL
+        </button>
         <select id="yearFilter" onchange="applyYearFilter()" style="display:none;">
         </select>
     </div>
@@ -712,9 +714,41 @@
         </div>
     </div>
 
+    <div id="saveModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+        <div style="background:#fff; padding:20px; border-radius:12px; width:420px; max-width:90%;">
+            <h3 style="margin-top:0;">Save Dashboard</h3>
+
+            <p style="font-size:14px; color:#57606a;">
+                Enter a username/slug (example: <b>saidul</b>).  
+                Your dashboard will be accessible at:
+                <b>gitfusion.com/saidul</b>
+            </p>
+
+            <input type="text" id="saveSlug" placeholder="Enter name (only letters, numbers, dash)"
+                style="width:100%; padding:12px; border:1px solid #d0d7de; border-radius:10px; margin-bottom:12px;">
+
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button onclick="closeSaveModal()" style="padding:10px 14px; border-radius:10px; border:1px solid #d0d7de; background:#fff; cursor:pointer;">
+                    Cancel
+                </button>
+
+                <button onclick="saveDashboard()" style="padding:10px 14px; border-radius:10px; border:none; background:#0969da; color:#fff; cursor:pointer;">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let fullMergedData = {};
         let selectedYear = "last";
+
+        window.onload = function () {
+            const usernames = document.getElementById("usernames").value.trim();
+            if (usernames.length > 0) {
+                merge();
+            }
+        };
 
         async function merge() {
 
@@ -746,6 +780,8 @@
                 generateYearFilter(data.yearRange.min, data.yearRange.max);
 
                 applyYearFilter();
+
+                document.getElementById("saveBtn").style.display = "inline-block";
 
             } catch (err) {
                 alert("Failed to fetch GitHub data!");
@@ -962,6 +998,53 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        function openSaveModal() {
+            document.getElementById("saveModal").style.display = "flex";
+        }
+
+        function closeSaveModal() {
+            document.getElementById("saveModal").style.display = "none";
+        }
+
+        async function saveDashboard() {
+
+            const slug = document.getElementById("saveSlug").value.trim();
+            const usernames = document.getElementById("usernames").value.trim();
+
+            if (!slug) {
+                alert("Please enter a name!");
+                return;
+            }
+
+            try {
+                const res = await fetch('/save-dashboard', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ slug, usernames })
+                });
+
+                const data = await res.json();
+
+                if (!data.success) {
+                    alert(data.message || "Failed to save!");
+                    return;
+                }
+
+                closeSaveModal();
+
+                alert("Saved successfully!\nURL: " + data.url);
+
+                window.history.pushState({}, "", data.url);
+
+            } catch (err) {
+                console.error(err);
+                alert("Failed to save dashboard!");
+            }
         }
     </script>
 
