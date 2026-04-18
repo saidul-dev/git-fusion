@@ -791,9 +791,82 @@
         </div>
     </div>
 
+    <div id="toast"
+        style="display:none; position:fixed; top:20px; right:20px; z-index:99999;
+                background:#24292f; color:#fff; padding:14px 16px; border-radius:12px;
+                box-shadow:0 10px 25px rgba(0,0,0,0.18); width:320px; max-width:90%;
+                font-size:13px; line-height:1.5;">
+
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+            <div>
+                <div id="toastTitle" style="font-weight:800; font-size:14px; margin-bottom:4px;">
+                    Success
+                </div>
+
+                <div id="toastMessage" style="color:rgba(255,255,255,0.85);">
+                    Saved successfully!
+                </div>
+            </div>
+
+            <button onclick="hideToast()"
+                    style="border:none; background:transparent; color:#fff; font-size:16px; cursor:pointer;">
+                ✕
+            </button>
+        </div>
+    </div>
+
     <script>
         let fullMergedData = {};
         let selectedYear = "last";
+        let toastTimeout = null;
+
+        function showToast(title, message, type = "success") {
+
+            const toast = document.getElementById("toast");
+            const toastTitle = document.getElementById("toastTitle");
+            const toastMessage = document.getElementById("toastMessage");
+
+            toastTitle.innerText = title;
+            toastMessage.innerText = message;
+
+            // colors by type
+            if (type === "success") {
+                toast.style.background = "#1f883d"; // green
+            } else if (type === "error") {
+                toast.style.background = "#cf222e"; // red
+            } else if (type === "info") {
+                toast.style.background = "#0969da"; // blue
+            } else {
+                toast.style.background = "#24292f"; // default dark
+            }
+
+            toast.style.display = "block";
+            toast.style.opacity = "0";
+            toast.style.transform = "translateY(-10px)";
+
+            setTimeout(() => {
+                toast.style.transition = "0.25s ease";
+                toast.style.opacity = "1";
+                toast.style.transform = "translateY(0)";
+            }, 10);
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+
+            toastTimeout = setTimeout(() => {
+                hideToast();
+            }, 3500);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById("toast");
+
+            toast.style.opacity = "0";
+            toast.style.transform = "translateY(-10px)";
+
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 250);
+        }
 
         window.onload = function () {
             const usernames = document.getElementById("usernames").value.trim();
@@ -815,10 +888,10 @@
         async function copyCurrentUrl() {
             try {
                 await navigator.clipboard.writeText(window.location.href);
-                alert("URL copied successfully!");
+                showToast("Copied!", "Dashboard URL copied successfully.", "success");
             } catch (err) {
                 console.error(err);
-                alert("Copy failed! Please copy manually.");
+                showToast("Failed!", "Copy failed. Please copy manually.", "error");
             }
         }
 
@@ -856,7 +929,7 @@
                 document.getElementById("saveBtn").style.display = "inline-block";
 
             } catch (err) {
-                alert("Failed to fetch GitHub data!");
+                showToast("Failed!", "Failed to fetch GitHub data.", "error");
                 console.error(err);
             }
 
@@ -1086,7 +1159,7 @@
             const usernames = document.getElementById("usernames").value.trim();
 
             if (!slug) {
-                alert("Please enter a name!");
+                showToast("Error!", "Please enter a name!", "error");
                 return;
             }
 
@@ -1103,13 +1176,13 @@
                 const data = await res.json();
 
                 if (!data.success) {
-                    alert(data.message || "Failed to save!");
+                    showToast("Error!", data.message || "Failed to save!", "error");
                     return;
                 }
 
                 closeSaveModal();
 
-                alert("Saved successfully!\nURL: " + data.url);
+                showToast("Success!", "Dashboard saved successfully!", "success");
 
                 window.history.pushState({}, "", data.url);
 
@@ -1117,7 +1190,7 @@
 
             } catch (err) {
                 console.error(err);
-                alert("Failed to save dashboard!");
+                showToast("Error!", "Failed to save dashboard!", "error");
             }
         }
     </script>
