@@ -10,7 +10,7 @@ class DashboardController extends Controller
     public function save(Request $request)
     {
         $request->validate([
-            'slug' => 'required|unique:saved_dashboards,slug|max:50',
+            'slug' => 'required|alpha_dash|max:50',
             'usernames' => 'required|string'
         ]);
 

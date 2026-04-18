@@ -717,28 +717,77 @@
         </div>
     </div>
 
-    <div id="saveModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
-        <div style="background:#fff; padding:20px; border-radius:12px; width:420px; max-width:90%;">
-            <h3 style="margin-top:0;">Save Dashboard</h3>
+    <div id="saveModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); align-items:center; justify-content:center; z-index:9999;">
+        <div style="background:#fff; padding:22px; border-radius:14px; width:460px; max-width:92%; box-shadow:0 12px 30px rgba(0,0,0,0.15);">
 
-            <p style="font-size:14px; color:#57606a;">
-                Enter a username/slug (example: <b>saidul</b>).  
-                Your dashboard will be accessible at:
-                <b>gitfusion.com/saidul</b>
-            </p>
+            <!-- Header -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div>
+                    <h3 style="margin:0; font-size:18px; font-weight:800; color:#24292f;">Save Dashboard</h3>
+                    <p style="margin:4px 0 0 0; font-size:13px; color:#57606a;">
+                        Generate a public shareable URL for your merged GitHub contribution dashboard.
+                    </p>
+                </div>
 
-            <input type="text" id="saveSlug" placeholder="Enter name (only letters, numbers, dash)"
-                style="width:100%; padding:12px; border:1px solid #d0d7de; border-radius:10px; margin-bottom:12px;">
+                <button onclick="closeSaveModal()"
+                    style="border:none; background:transparent; font-size:18px; cursor:pointer; color:#57606a;">
+                    ✕
+                </button>
+            </div>
 
-            <div style="display:flex; gap:10px; justify-content:flex-end;">
-                <button onclick="closeSaveModal()" style="padding:10px 14px; border-radius:10px; border:1px solid #d0d7de; background:#fff; cursor:pointer;">
+            <!-- Info Box -->
+            <div style="background:#f6f8fa; border:1px solid #d0d7de; border-radius:12px; padding:12px 14px; margin-bottom:14px;">
+                <p style="margin:0; font-size:13px; color:#24292f; line-height:1.5;">
+                    Your dashboard will be available at:
+                </p>
+
+                <div style="margin-top:8px; padding:10px 12px; border-radius:10px; background:#fff; border:1px dashed #d0d7de;">
+                    <span style="font-size:13px; font-weight:700; color:#0969da;">
+                        https://gitfusion.com/<span id="slugPreview">your-name</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px; color:#24292f;">
+                Choose your dashboard name (slug)
+            </label>
+
+            <input type="text" id="saveSlug"
+                placeholder="Example: saidul"
+                onkeyup="updateSlugPreview()"
+                style="width:100%; padding:12px; border:1px solid #d0d7de; border-radius:10px; font-size:14px; outline:none;">
+
+            <!-- Rules -->
+            <div style="margin-top:12px; font-size:12.5px; color:#57606a; line-height:1.6;">
+                <p style="margin:0;">
+                    <b>Rules:</b> Only <b>letters</b>, <b>numbers</b>, and <b>dashes (-)</b>.  
+                    No spaces. Example: <b>saidul-dev</b>
+                </p>
+
+                <p style="margin:8px 0 0 0; color:#cf222e; font-weight:600;">
+                    ⚠ If the slug already exists, it will overwrite the old dashboard.
+                </p>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px;">
+                <button onclick="closeSaveModal()"
+                    style="padding:10px 14px; border-radius:10px; border:1px solid #d0d7de; background:#fff; cursor:pointer; font-weight:700; color:#24292f;">
                     Cancel
                 </button>
 
-                <button onclick="saveDashboard()" style="padding:10px 14px; border-radius:10px; border:none; background:#0969da; color:#fff; cursor:pointer;">
-                    Save
+                <button onclick="saveDashboard()"
+                    style="padding:10px 14px; border-radius:10px; border:none; background:#0969da; color:#fff; cursor:pointer; font-weight:800;">
+                    Save & Generate URL
                 </button>
             </div>
+
+            <!-- Small note -->
+            <p style="margin:14px 0 0 0; font-size:12px; color:#57606a; text-align:center;">
+                This will save your GitHub usernames list to GitFusion database.
+            </p>
+
         </div>
     </div>
 
@@ -757,6 +806,11 @@
                 merge();
             }
         };
+
+        function updateSlugPreview() {
+            const slug = document.getElementById("saveSlug").value.trim();
+            document.getElementById("slugPreview").innerText = slug ? slug : "your-name";
+        }
 
         async function copyCurrentUrl() {
             try {
@@ -1060,7 +1114,7 @@
                 window.history.pushState({}, "", data.url);
 
                 document.getElementById("copyUrlBtn").style.display = "inline-block";
-                
+
             } catch (err) {
                 console.error(err);
                 alert("Failed to save dashboard!");
