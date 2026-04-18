@@ -766,7 +766,7 @@
             // Default option
             yearSelect.innerHTML += `<option value="last">Last Year</option>`;
 
-            for (let y = minYear; y <= maxYear; y++) {
+            for (let y = maxYear; y >= minYear; y--) {
                 yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
             }
 
